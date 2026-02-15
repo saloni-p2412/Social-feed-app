@@ -6,12 +6,12 @@
         type="button"
         class="delete-btn"
         title="Delete post"
-        @click="confirmDelete"
+        @click="deletePost"
       >
         Delete
       </button>
     </div>
-    
+
     <div v-if="post.text_content" class="post-content">
       <p>{{ post.text_content }}</p>
     </div>
@@ -27,9 +27,7 @@ import MediaGallery from './MediaGallery.vue'
 
 export default {
   name: 'PostCard',
-  components: {
-    MediaGallery,
-  },
+  components: { MediaGallery },
   props: {
     post: {
       type: Object,
@@ -38,6 +36,7 @@ export default {
   },
   emits: ['delete'],
   methods: {
+    // Show date in readable format (e.g. "Feb 14, 2025, 10:30 AM")
     formatDate(dateString) {
       const date = new Date(dateString)
       return date.toLocaleString('en-US', {
@@ -48,10 +47,9 @@ export default {
         minute: '2-digit',
       })
     },
-    confirmDelete() {
-      if (window.confirm('Delete this post?')) {
+  
+    deletePost() {
         this.$emit('delete', this.post.id)
-      }
     },
   },
 }

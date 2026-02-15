@@ -1,8 +1,10 @@
+
 from rest_framework import serializers
 from .models import Post, Media
 
 
 class MediaSerializer(serializers.ModelSerializer):
+
     file_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -10,10 +12,16 @@ class MediaSerializer(serializers.ModelSerializer):
         fields = ['id', 'media_type', 'file_url', 'created_at']
 
     def get_file_url(self, obj):
+        try:
+            url = obj.file.url if obj.file else None
+        except (ValueError, OSError):
+            url = None
+        if not url:
+            return None
         request = self.context.get('request')
-        if obj.file_url and request:
-            return request.build_absolute_uri(obj.file_url)
-        return obj.file_url
+        if request:
+            return request.build_absolute_uri(url)
+        return url
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -21,8 +29,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'text_content', 'created_at', 'updated_at', 'published', 'media']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = ['id', 'text_content', 'created_at', 'published', 'media']
+        read_only_fields = ['id', 'created_at']
 
 
 class PostCreateSerializer(serializers.ModelSerializer):

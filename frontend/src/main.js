@@ -1,3 +1,4 @@
+
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
@@ -7,8 +8,8 @@ import api from './api/client'
 import './style.css'
 
 const routes = [
-  { path: '/', component: LoginView },
-  { path: '/feed', component: FeedView },
+  { path: '/',name:"Login", component: LoginView },      // Login page
+  { path: '/feed', component: FeedView },   // Main feed (posts)
 ]
 
 const router = createRouter({
@@ -18,8 +19,9 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const isLoggedIn = !!api.getToken()
-  if (to.path === '/feed' && !isLoggedIn) return '/'
-  if (to.path === '/' && isLoggedIn) return '/feed'
+  if (to.path === '/feed' && !isLoggedIn) return '/'    // Protect feed
+  //if (to.path === '/' && isLoggedIn) return '/feed'     // Skip login if already in
 })
 
+// Start the app
 createApp(App).use(router).mount('#app')

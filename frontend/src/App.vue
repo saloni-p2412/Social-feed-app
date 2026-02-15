@@ -2,9 +2,8 @@
   <div id="app">
     <header class="app-header">
       <h1>Social Feed</h1>
-      <template v-if="user">
+      <template v-if="showLogout">
         <div class="app-nav">
-          <span class="user-name">{{ user.username }}</span>
           <button type="button" class="nav-btn" @click="logout">Log out</button>
         </div>
       </template>
@@ -15,39 +14,18 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from './api/client'
+<script setup>
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-export default {
-  name: 'App',
-  setup() {
-    const router = useRouter()
-    const user = ref(null)
+const route = useRoute();
+const router = useRouter();
 
-    const loadUser = () => {
-      try {
-        const stored = localStorage.getItem('user')
-        user.value = stored ? JSON.parse(stored) : null
-      } catch {
-        user.value = null
-      }
-    }
+const showLogout = computed(() => route.name !== "Login"); // login page par hide
 
-    const logout = () => {
-      api.clearToken()
-      user.value = null
-      router.push('/')
-    }
-
-    onMounted(() => {
-      loadUser()
-      router.afterEach(() => loadUser())
-    })
-
-    return { user, logout }
-  },
+function logout() {
+  localStorage.removeItem("token"); // jo token store karto hoy to
+  router.push({ name: "Login" });
 }
 </script>
 

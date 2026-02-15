@@ -1,5 +1,8 @@
 """
-URL configuration for socialfeed project.
+Main URL config. Mounts:
+- /admin/ -> Django admin
+- /api/ -> accounts (auth) + posts
+- /media/ -> served in DEBUG for uploaded files
 """
 from django.contrib import admin
 from django.urls import path, include

@@ -1,9 +1,10 @@
+
 import axios from 'axios'
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
-
 const TOKEN_KEY = 'auth_token'
 
+// Build auth header for authenticated requests
 function getAuthHeader() {
   const token = localStorage.getItem(TOKEN_KEY)
   return token ? { Authorization: `Token ${token}` } : {}
@@ -11,17 +12,17 @@ function getAuthHeader() {
 
 const client = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 })
 
+// Automatically add auth token to every request
 client.interceptors.request.use((config) => {
   Object.assign(config.headers, getAuthHeader())
   return config
 })
 
 export default {
+  // --- Auth helpers ---
   setToken(token) {
     if (token) localStorage.setItem(TOKEN_KEY, token)
   },
@@ -33,25 +34,25 @@ export default {
     return localStorage.getItem(TOKEN_KEY)
   },
 
+  // --- Auth endpoints ---
   login(username, password) {
     return client.post('/auth/login/', { username, password })
   },
-  register(username, password, email = '') {
+  /*register(username, password, email = '') {
     return client.post('/auth/register/', { username, password, email })
-  },
-  getMe() {
-    return client.get('/auth/me/')
+  },*/
+  getClient() {
+    return client.get('/auth/client/')
   },
 
+  // --- Posts endpoints ---
   getPosts() {
     return client.get('/posts/')
   },
-
   createPost(formData) {
     const headers = { ...getAuthHeader() }
     return axios.post(`${API_BASE_URL}/posts/`, formData, { headers })
   },
-
   deletePost(id) {
     return client.delete(`/posts/${id}/`)
   },

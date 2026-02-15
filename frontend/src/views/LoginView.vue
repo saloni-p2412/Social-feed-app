@@ -9,7 +9,7 @@
             type="text"
             placeholder="Username"
             class="text-input"
-            autocomplete="username"
+            
           />
         </div>
         <div class="form-group">
@@ -18,12 +18,12 @@
             type="password"
             placeholder="Password"
             class="text-input"
-            autocomplete="current-password"
+           
           />
         </div>
         <div v-if="error" class="error-message">{{ error }}</div>
-        <button type="submit" :disabled="submitting" class="submit-btn">
-          {{ submitting ? 'Logging in...' : 'Log in' }}
+        <button type="submit" class="submit-btn">
+          {{ 'Log in' }}
         </button>
       </form>
     </div>
@@ -39,34 +39,39 @@ export default {
   name: 'LoginView',
   setup() {
     const router = useRouter()
+    // Static defaults for development (create this user with: python manage.py createsuperuser)
     const username = ref('')
     const password = ref('')
-    const submitting = ref(false)
+    //const submitting = ref(false)
     const error = ref('')
 
+    // Send login request, save token, redirect to feed
     const handleSubmit = async () => {
       if (!username.value.trim() || !password.value) {
         error.value = 'Username and password are required'
         return
       }
-      submitting.value = true
+      //submitting.value = true
       error.value = ''
+      username.value = 'admin'
+      password.value = 'admin123'
       try {
-        const res = await api.login(username.value, password.value)
-        api.setToken(res.data.token)
-        if (res.data.user) {
-          localStorage.setItem('user', JSON.stringify(res.data.user))
+        const request = await api.login(username.value, password.value)
+        api.setToken(request.data.token)
+        if (request.data.user) {
+          localStorage.setItem('user', JSON.stringify(request.data.user))
         }
         router.push('/feed')
       } catch (err) {
-        const data = err.response?.data
-        error.value = data?.error || err.message || 'Login failed. Please try again.'
-      } finally {
-        submitting.value = false
-      }
+        // const data = err.response?.data
+        error.value = 'Login failed. Please try again.'
+      } 
+      //finally {
+        //submitting.value = false
+      //}
     }
 
-    return { username, password, submitting, error, handleSubmit }
+    return { username, password, error, handleSubmit }
   },
 }
 </script>

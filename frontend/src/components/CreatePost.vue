@@ -35,10 +35,6 @@
 
         <div v-if="error" class="error-message">
           {{ error }}
-          <div v-if="isNetworkError" class="error-hint">
-            The app is calling <strong>{{ apiBaseUrl }}/posts/</strong>. Start the backend in another terminal:
-            <code>./start-backend.sh</code> or <code>cd backend && source venv/bin/activate && python manage.py runserver</code>
-          </div>
         </div>
 
         <button type="submit" :disabled="submitting || (!textContent.trim() && selectedFiles.length === 0)" class="submit-btn">
@@ -57,17 +53,15 @@ export default {
   name: 'CreatePost',
   emits: ['post-created'],
   setup(props, { emit }) {
+    // --- State ---
     const textContent = ref('')
     const selectedFiles = ref([])
     const submitting = ref(false)
     const error = ref('')
     const fileInput = ref(null)
     const apiBaseUrl = API_BASE_URL
-    const isNetworkError = computed(() => {
-      const e = error.value || ''
-      return e.includes('Network Error') || e.includes('Failed to fetch') || e.includes('ERR_NETWORK')
-    })
 
+    // Check file size and type before submit
     const validateFiles = () => {
       const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
       const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
@@ -95,11 +89,11 @@ export default {
     }
 
     const removeFile = (index) => {
-      selectedFiles.value.splice(index, 1)
+      selectedFiles.value.splice(index, 1)  // Remove file from list before submit
     }
 
+    // Submit post to API, reset form on success, show error on fail
     const handleSubmit = async () => {
-      // Validate
       if (!textContent.value.trim() && selectedFiles.value.length === 0) {
         error.value = 'Post must have either text content or at least one media file'
         return
@@ -138,23 +132,7 @@ export default {
       } catch (err) {
         console.error('Error creating post:', err)
         const data = err.response?.data
-        if (Array.isArray(data?.errors)) {
-          error.value = data.errors.join(', ')
-        } else if (data?.error) {
-          error.value = data.error
-        } else if (data?.detail) {
-          error.value = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)
-        } else if (data && typeof data === 'object') {
-          // e.g. serializer errors: { text_content: ['...'], published: ['...'] }
-          const parts = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-          error.value = parts.join('; ')
-        } else if (err.response?.status === 403) {
-          error.value = 'Request blocked (403). If using same-site backend, check CORS and CSRF.'
-        } else if (err.response?.status) {
-          error.value = `Request failed (${err.response.status}). ${data ? JSON.stringify(data) : err.message}`
-        } else {
           error.value = err.message || 'Failed to create post. Please try again.'
-        }
       } finally {
         submitting.value = false
       }
@@ -167,7 +145,7 @@ export default {
       error,
       fileInput,
       apiBaseUrl,
-      isNetworkError,
+      //isNetworkError,
       handleFileSelect,
       removeFile,
       handleSubmit,

@@ -34,10 +34,7 @@
     </div>
 
     <!-- Image Modal -->
-    <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
-      <button class="modal-close" @click="closeImageModal">×</button>
-      <button class="modal-nav modal-prev" @click.stop="prevImage" v-if="images.length > 1">‹</button>
-      <button class="modal-nav modal-next" @click.stop="nextImage" v-if="images.length > 1">›</button>
+    <div v-if="showImageModal" class="image-modal">
       <img
         :src="images[currentImageIndex].file_url"
         alt="Full size image"
@@ -57,40 +54,20 @@ import { ref, computed } from 'vue'
 export default {
   name: 'MediaGallery',
   props: {
-    media: {
-      type: Array,
-      required: true,
-    },
+    media: { type: Array, required: true },
   },
   setup(props) {
     const showImageModal = ref(false)
     const currentImageIndex = ref(0)
 
-    const images = computed(() => {
-      return props.media.filter(m => m.media_type === 'image')
-    })
-
-    const videos = computed(() => {
-      return props.media.filter(m => m.media_type === 'video')
-    })
+    // Split media into images and videos for display
+    const images = computed(() => props.media.filter(m => m.media_type === 'image'))
+    const videos = computed(() => props.media.filter(m => m.media_type === 'video'))
 
     const openImageModal = (index) => {
       currentImageIndex.value = index
       showImageModal.value = true
       document.body.style.overflow = 'hidden'
-    }
-
-    const closeImageModal = () => {
-      showImageModal.value = false
-      document.body.style.overflow = ''
-    }
-
-    const nextImage = () => {
-      currentImageIndex.value = (currentImageIndex.value + 1) % images.value.length
-    }
-
-    const prevImage = () => {
-      currentImageIndex.value = (currentImageIndex.value - 1 + images.value.length) % images.value.length
     }
 
     return {
@@ -99,9 +76,9 @@ export default {
       showImageModal,
       currentImageIndex,
       openImageModal,
-      closeImageModal,
-      nextImage,
-      prevImage,
+      //closeImageModal,
+      //nextImage,
+      //prevImage,
     }
   },
 }
